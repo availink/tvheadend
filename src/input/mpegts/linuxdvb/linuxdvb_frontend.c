@@ -1839,7 +1839,8 @@ linuxdvb_frontend_tune0
           ((dmc->dmc_fe_pls_code & 0x3FFFF)<<8) | ((dmc->dmc_fe_pls_mode & 0x3)<<26) :
           DVB_NO_STREAM_ID_FILTER;
 #if DVB_VER_ATLEAST(5,9)
-      S2CMD(DTV_STREAM_ID,       r);
+      //S2CMD(DTV_STREAM_ID,       r);
+      S2CMD(DTV_STREAM_ID,      dmc->dmc_fe_stream_id );
 #if DVB_VER_ATLEAST(5,11)
       r = dvb_sat_pls(dmc);
       if (r != 0) /* default PLS gold code */
