@@ -1835,12 +1835,20 @@ linuxdvb_frontend_tune0
     } else {
       S2CMD(DTV_PILOT,           TR(pilot, pilot_tbl, PILOT_AUTO));
       S2CMD(DTV_ROLLOFF,         TR(rolloff, rolloff_tbl, ROLLOFF_AUTO));
-      r = dmc->dmc_fe_stream_id != DVB_NO_STREAM_ID_FILTER ? (dmc->dmc_fe_stream_id & 0xFF) |
-          ((dmc->dmc_fe_pls_code & 0x3FFFF)<<8) | ((dmc->dmc_fe_pls_mode & 0x3)<<26) :
-          DVB_NO_STREAM_ID_FILTER;
+      if(dmc->dmc_fe_stream_id == DVB_NO_STREAM_ID_FILTER) {
+        r = DVB_NO_STREAM_ID_FILTER;
+      } else {
+        if((dmc->dmc_fe_stream_id>>29) & 1) {
+          //is T2MI - pass all 32bit to DVB
+          r = dmc->dmc_fe_stream_id;
+        } else {
+          r = (dmc->dmc_fe_stream_id & 0xFF) |
+              ((dmc->dmc_fe_pls_code & 0x3FFFF) << 8) |
+              ((dmc->dmc_fe_pls_mode & 0x3) << 26);
+        }
+      }
 #if DVB_VER_ATLEAST(5,9)
-      //S2CMD(DTV_STREAM_ID,       r);
-      S2CMD(DTV_STREAM_ID,      dmc->dmc_fe_stream_id );
+      S2CMD(DTV_STREAM_ID,       r);
 #if DVB_VER_ATLEAST(5,11)
       r = dvb_sat_pls(dmc);
       if (r != 0) /* default PLS gold code */

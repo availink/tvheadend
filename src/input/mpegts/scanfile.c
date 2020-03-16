@@ -590,12 +590,16 @@ scanfile_load_dvbv5
       mux->dmc_fe_pls_code = 1;
     }
     else {
-      //mux->dmc_fe_stream_id = r&0xff;
-      //mux->dmc_fe_pls_mode = (r>>26)&0x3;
-      //mux->dmc_fe_pls_code = (r>>8)&0x3FFFF;
-      mux->dmc_fe_stream_id = r;
-      mux->dmc_fe_pls_mode = 0;
-      mux->dmc_fe_pls_code = 1;
+      if((r>>29) & 1) {
+        //is T2MI - pass entire 32b thru to DVB
+        mux->dmc_fe_stream_id = r;
+        mux->dmc_fe_pls_mode = 0;
+        mux->dmc_fe_pls_code = 1;
+      } else {
+        mux->dmc_fe_stream_id = r&0xff;
+        mux->dmc_fe_pls_mode = (r>>26)&0x3;
+        mux->dmc_fe_pls_code = (r>>8)&0x3FFFF;
+      }
     }
 
     if (htsmsg_get_u32(l, "PLS_CODE", &mux->dmc_fe_pls_code) == 0)
